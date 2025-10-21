@@ -1,0 +1,50 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: testAreaOfCirle
+      id: testareaofcirle
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: testAreaOfCirle
+        setup-command: pip install pytest
+        command: pytest test_midterm.py::test_area_of_circle
+        timeout: 1
+        max-score: 30
+    - name: testHollowRightTriangle
+      id: testhollowrighttriangle
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: testHollowRightTriangle
+        setup-command: pip install pytest
+        command: pytest test_midterm.py::test_hollow_right_triangle
+        timeout: 1
+        max-score: 30
+    - name: testInvertedPyramid
+      id: testinvertedpyramid
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: testInvertedPyramid
+        setup-command: pip install pytest
+        command: pytest test_midterm.py::test_inverted_pyramid
+        timeout: 1
+        max-score: 40
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TESTAREAOFCIRLE_RESULTS: "${{steps.testareaofcirle.outputs.result}}"
+        TESTHOLLOWRIGHTTRIANGLE_RESULTS: "${{steps.testhollowrighttriangle.outputs.result}}"
+        TESTINVERTEDPYRAMID_RESULTS: "${{steps.testinvertedpyramid.outputs.result}}"
+      with:
+        runners: testareaofcirle,testhollowrighttriangle,testinvertedpyramid
